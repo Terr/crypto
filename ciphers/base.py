@@ -6,11 +6,15 @@ from operator import itemgetter
 class Cipher(object):
     """Abstract class"""
 
+    def __init__(self, shift=None, *args, **kwargs):
+        super(Cipher, self).__init__()
+
     def encrypt(self):
         raise NotImplementedError()
 
     def decrypt(self):
         raise NotImplementedError()
+
 
 class SubstitutionCipher(Cipher):
     """Simple substitution cipher that only works with uppercase alphabetical
@@ -18,6 +22,16 @@ class SubstitutionCipher(Cipher):
     """
     ORD_A = ord('A')
     ORD_Z = ord('Z')
+
+    def __init__(self, shift=None, *args, **kwargs):
+        """Initialize cipher with optional `shift`.
+
+        `shift` property must be set to <> 0 value before any encrypting or decrypting
+        can be done.
+        """
+        super(SubstitutionCipher, self).__init__(*args, **kwargs)
+
+        self.shift = shift
 
     def encrypt(self):
         raise NotImplementedError()
