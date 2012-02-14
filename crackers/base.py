@@ -2,9 +2,12 @@ import string
 
 from operator import itemgetter
 
+from languages import LANGUAGES
+
 
 class Cracker(object):
-    pass
+    languages = LANGUAGES
+    """List of :class:`languages.Language` objects."""
 
 
 class SubstitutionCipherCracker(Cracker):
