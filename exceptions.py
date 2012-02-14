@@ -1,0 +1,2 @@
+class CrackerException(Exception):
+    pass
