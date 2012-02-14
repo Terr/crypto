@@ -1,5 +1,6 @@
 import os
 import difflib
+import chardet
 
 from pprint import pprint
 from unittest import TestCase
@@ -9,11 +10,15 @@ from crackers import *
 
 
 def load_text(filename):
-    return open(os.path.join(
+    """Loads fixture and returns contents in Unicode."""
+    f = open(os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         'fixtures',
         filename
-    ), 'r').read()
+    ), 'r')
+    contents = f.read()
+    encoding = f.encoding or chardet.detect(contents)['encoding']
+    return contents.decode(encoding)
 
 def diff(a, b):
     d = difflib.Differ()
