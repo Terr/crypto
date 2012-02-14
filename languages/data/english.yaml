@@ -1,0 +1,5 @@
+common_letters: etaoinsrhldcumfpgwybvkxjqz
+common_digraph: [th, he, an, in, er, on, re, ed, nd, ha, at, en, es, of, nt, ea, ti, to, io, le, is, ou, ar, as, de, rt, ve]
+common_trigraph: [the, and, tha, ent, ion, tio, for, nde, has, nce, tis, oft, men]
+common_double_letters: [ss, ee, tt, ff, ll, mm, oo]
+common_words: [the, of, to, in, and, a, for, was, is, that, 'on', at, he, with, by, be, it, an, as, his]
