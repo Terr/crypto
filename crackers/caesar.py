@@ -1,3 +1,5 @@
+import types
+
 from base import SubstitutionCipherCracker
 
 from ciphers import CaesarCipher
@@ -9,8 +11,16 @@ class CaesarCracker(SubstitutionCipherCracker):
     """Provides functionality for cracking a CaesarCipher."""
 
     def __init__(self, text):
-        self.text = text
-        self.cipher = CaesarCipher(text)
+        # Make sure the text is Unicode
+        try:
+            if not type(text) is types.UnicodeType:
+                text = text.decode()
+        except (UnicodeDecodeError, UnicodeEncodeError), e:
+            raise ValueError('Text is not and could not be converted to ' \
+                             'Unicode: %s ' % e)
+
+        self.text = text.upper()
+        self.cipher = CaesarCipher(self.text)
 
     def run(self):
         """Attempts to figure out the letter shift to decrypt the text
