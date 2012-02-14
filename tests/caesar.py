@@ -82,6 +82,14 @@ class CaesarCrackerTest(TestCase):
         result = cracker.run()
         self.assertEqual(result, plain, diff(result, plain))
 
+        # National anthem of The Netherlands
+        plain = load_text('dutch_anthem_plain.txt').upper() # Source is in mixed case
+        encrypted = load_text('dutch_anthem_encrypted.txt')
+
+        cracker = CaesarCracker(encrypted)
+        result = cracker.run()
+        self.assertEqual(result, plain, diff(result, plain))
+
     def test_esperanto(self):
         """Esperanto has a higher 'A' frequency instead of 'E', like most
         Western languages.
