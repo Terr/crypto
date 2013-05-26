@@ -1,12 +1,12 @@
+import string
 import os
 import difflib
 import chardet
 
-from pprint import pprint
 from unittest import TestCase
 
-from ciphers import *
-from crackers import *
+from crypto.ciphers import *
+from crypto.crackers import *
 
 
 def load_text(filename):
@@ -16,40 +16,71 @@ def load_text(filename):
         'fixtures',
         filename
     ), 'r')
-    contents = f.read()
+    contents = f.read().strip()
     encoding = f.encoding or chardet.detect(contents)['encoding']
+    f.close()
     return contents.decode(encoding)
 
 def diff(a, b):
     d = difflib.Differ()
     result = d.compare(a, b)
     # Only show differences
-    filtered = list([x for x in result if x.startswith('+') or x.startswith('-') ])
+    filtered = list([x for x in result if x.startswith('+') or x.startswith('-')])
 
     num_diffs_shown = min(6, len(filtered) - 1)
-    output = 'Assertion failed. Differences (showing %d):\n' % (num_diffs_shown / 2)
+    output = 'Assertion failed. Differences (showing %d):\n' % (num_diffs_shown
+                                                                / 2)
     for i in xrange(0, num_diffs_shown, 2):
-        output += '%s\n%s\n\n' % (filtered[i], filtered[i+1])
+        output += '%s\n%s\n\n' % (filtered[i], filtered[i + 1])
     return output
 
 class CaesarCipherTest(TestCase):
-    def test_all_uppercase(self):
+    def test_simple_encryption(self):
+        """Simple test to determine if the caesar cipher works at all."""
+
+        plain = load_text('english_simple_plain.txt')
+        expected = load_text('english_simple_encrypted.txt')
+
+        cipher = CaesarCipher(
+            shift=3, character_list=string.uppercase
+        )
+        encrypted = cipher.encrypt(plain.upper())
+        self.assertEqual(encrypted, expected, diff(encrypted, expected))
+
+    def test_simple_decryption(self):
+        """Simple test to determine if the caesar cipher works at all."""
+
+        encrypted = load_text('english_simple_encrypted.txt')
+        expected = load_text('english_simple_plain.txt')
+        # Spaces have been removed during encryption, and converted to
+        # uppercase
+        expected = expected.replace(' ', '').upper()
+
+        cipher = CaesarCipher(
+            shift=3, character_list=string.uppercase
+        )
+        plain = cipher.decrypt(encrypted.upper())
+        self.assertEqual(plain, expected, diff(plain, expected))
+
+    def test_with_character_preservation(self):
         plain = load_text('english_plain.txt')
         expected = load_text('english_encrypted.txt')
 
         # Test with a shift of 3
-        cipher = CaesarCipher(shift=3)
+        preserve_chars = string.digits + string.whitespace + string.punctuation
+        cipher = CaesarCipher(shift=3, preserve_chars=preserve_chars)
         self.assertEqual(cipher.shift, 3)
 
         encrypted = cipher.encrypt(plain)
         self.assertEqual(encrypted, expected, diff(encrypted, expected))
 
-    def test_source_not_uppercase(self):
+    def test_mix_lower_and_uppercase(self):
         plain = load_text('dutch_plain.txt')
         expected = load_text('dutch_encrypted.txt')
 
         # Test with a shift of 3
-        cipher = CaesarCipher(shift=3)
+        cipher = CaesarCipher(shift=3, character_list=string.uppercase +
+                              string.lowercase)
         encrypted = cipher.encrypt(plain)
         self.assertEqual(encrypted, expected, diff(encrypted, expected))
 

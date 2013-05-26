@@ -1,12 +1,15 @@
+import re
 import string
 
 from operator import itemgetter
+
+from crypto_exceptions import CipherException
 
 
 class Cipher(object):
     """Abstract class"""
 
-    def __init__(self, shift=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Cipher, self).__init__()
 
     def encrypt(self):
@@ -20,18 +23,22 @@ class SubstitutionCipher(Cipher):
     """Simple substitution cipher that only works with uppercase alphabetical
     letters.
     """
-    ORD_A = ord('A')
-    ORD_Z = ord('Z')
 
-    def __init__(self, shift=None, *args, **kwargs):
-        """Initialize cipher with optional `shift`.
+    def __init__(self, shift, character_list=string.uppercase,
+                 preserve_chars='', *args, **kwargs):
+        """Initialize substitution cipher with a `shift`.
 
-        `shift` property must be set to <> 0 value before any encrypting or decrypting
-        can be done.
+        :param shift: Number of characters to shift when encrypting and
+        decrypting. Must be set to <> 0 value.
+        :param character_list: Strign or list of individual characters that
+        form up the cipher alphabet. The order of the list is important.
         """
         super(SubstitutionCipher, self).__init__(*args, **kwargs)
 
         self.shift = shift
+        self.character_list = character_list
+        self.character_list_len = len(self.character_list)
+        self.preserve_chars = preserve_chars
 
     def encrypt(self):
         raise NotImplementedError()
@@ -40,19 +47,28 @@ class SubstitutionCipher(Cipher):
         raise NotImplementedError()
 
     def shift_character(self, char, shift):
-        """Shifts *alphabetical* character `shift` number of characters to the
-        'right' (or 'left' if `shift` is negative).
+        """Shifts *alphabetical* characters `shift` number
+        of characters to the 'right' (or 'left' if `shift` is negative).
+
+        Returns text in encrypted form, in uppercase.
         """
-        if char not in string.uppercase:
+        if char in self.preserve_chars:
+            # Preserve character
             return char
+        elif char not in self.character_list:
+            # Remove characters that are not in the charset
+            return ''
 
-        new_ord = ord(char) + shift
-        if new_ord > self.ORD_Z:
-            new_ord = self.ORD_A + (new_ord - self.ORD_Z) - 1
-        elif new_ord < self.ORD_A:
-            new_ord = self.ORD_Z - (self.ORD_A - new_ord) + 1
+        # TODO If performance becomes an issue, convert character list search
+        # to binary search
+        new_char_pos = self.character_list.index(char) + shift
 
-        return chr(new_ord)
+        if new_char_pos >= self.character_list_len:
+            new_char_pos = new_char_pos - self.character_list_len
+        elif new_char_pos < 0:
+            new_char_pos = self.character_list_len + new_char_pos
+
+        return self.character_list[new_char_pos]
 
     def shift_text(self, text, shift):
         """Shifts value in :attr:`text` with `shift` characters."""
@@ -62,3 +78,7 @@ class SubstitutionCipher(Cipher):
             mutated_text += self.shift_character(s, shift)
 
         return mutated_text
+
+    def remove_spacing(self, text):
+        """Remove spacing (whitespaces, newlines) from `text`."""
+        return re.sub('\s', '', text)
